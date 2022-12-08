@@ -21,6 +21,7 @@ html, body {
   height: 325px;
   margin: auto;
   padding: 30px;
+  user-select: none;
   background-color: #b3b3b3;
   border: 5px solid #ffa500;
 }
@@ -78,7 +79,7 @@ html, body {
   background-color: #808080;
 }
 
-.drum-pad:active {
+.drum-pad.active {
   top: 3px;
   height: 77px;
   background-color: #ffa500;
@@ -98,6 +99,7 @@ html, body {
 }
 
 .switch-inner {
+  position: relative;
   box-sizing: border-box;
   border: 3px solid #000000;
   width: 54px;
@@ -107,6 +109,7 @@ html, body {
 }
 
 .switch-bg {
+  position: absolute;
   width: 23px;
   height: 100%;
   background-color: #0000ff;

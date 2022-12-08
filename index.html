@@ -13,72 +13,174 @@
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 </head>
 <body>
-  <div class="container" id="root">
-    <div id="drum-machine">
-      <div class="top">
-        <i class="top-text">FCC</i>
-        <i class="fab fa-free-code-camp"></i>
-      </div>
-      <div class="left">
-        <button type="button" class="drum-pad">
-          <span>Q</span>
-          <audio class="clip" id="Q" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>W</span>
-          <audio class="clip" id="W" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>E</span>
-          <audio class="clip" id="E" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>A</span>
-          <audio class="clip" id="E" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>S</span>
-          <audio class="clip" id="E" src="https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>D</span>
-          <audio class="clip" id="D" src="https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>Z</span>
-          <audio class="clip" id="D" src="https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>X</span>
-          <audio class="clip" id="D" src="https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3"></audio>
-        </button>
-        <button type="button" class="drum-pad">
-          <span>C</span>
-          <audio class="clip" id="C" src="https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3"></audio>
-        </button>
-      </div>
-      <div class="right">
-        <div class="switch">
-          <div class="switch-label">Power</div>
-          <div class="switch-inner">
-            <div class="switch-bg"></div>
-          </div>
-        </div>
-        <div id="slider">Clap</div>
-        <div class="volume">
-          <input type="range" min="0" max="1" step="0.01" value="0.3" />
-        </div>
-        <div class="switch">
-          <div class="switch-label">Bank</div>
-          <div class="switch-inner">
-            <div class="switch-bg"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="container">
+    <div id="drum-machine"></div>
   </div>
   <script type="text/babel">
+    class RenderTop extends React.Component {
+      render() {
+        return (
+          <div className="top">
+            <i className="top-text">FCC</i>
+            <i className="fab fa-free-code-camp"></i>
+          </div>
+        );
+      }
+    }
 
+    class RenderSwitch extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { isActive: this.props.initialIsActive }
+        this.handleClick = this.handleClick.bind(this);
+      }
+
+      handleClick() {
+        this.setState({
+          isActive: !this.state.isActive
+        }, () => {
+          this.props.onSwitchClick(this.state.isActive);
+        });
+      }
+      
+      render() {
+        return (
+          <div className="switch" onClick={this.handleClick}>
+            <div className="switch-label">{this.props.label}</div>
+            <div className="switch-inner">
+              <div className="switch-bg" style={{[this.state.isActive ? 'right' : 'left']: 0}}></div>
+            </div>
+          </div>
+        )
+      }
+    }
+
+    class RenderDrumPads extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleClick = this.handleClick.bind(this);
+      }
+      
+      handleClick(e) {
+        this.props.onDrumPadClick(e.currentTarget.dataset.id);
+      }
+
+      render() {
+        return (
+          <React.Fragment>
+            {this.props.drumData.map((value, i) => (
+              <button type="button" key={i} className="drum-pad" onClick={this.handleClick} data-id={value.key}>
+                <span>{value.key}</span>
+                <audio className="clip" id={value.key} src={value.url}></audio>
+              </button>
+            ))}
+          </React.Fragment>
+        );
+      }
+    }
+
+    class DrumMachine extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          drumData: [
+            { key: 'Q', name: 'Heater 1', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3' }, 
+            { key: 'W', name: 'Heater 2', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3' }, 
+            { key: 'E', name: 'Heater 3', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3' }, 
+            { key: 'A', name: 'Heater 4', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3' }, 
+            { key: 'S', name: 'Clap', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3' }, 
+            { key: 'D', name: 'Open HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3' },
+            { key: 'Z', name: 'Kick n\' Hat', url: 'https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3' }, 
+            { key: 'X', name: 'Kick', url: 'https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3' }, 
+            { key: 'C', name: 'Closed HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3' }
+          ],
+          currentDrum: { name: '' },
+          volume: '0.2'
+        }
+        this.handleDrumPadClick = this.handleDrumPadClick.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleSwitchClick = this.handleSwitchClick.bind(this);
+      }
+
+      setCurrentDrum(currentKey) {
+        this.setState({
+          currentDrum: {...this.state.drumData.find(object => object.key === currentKey)}
+        });
+      }
+
+      handleKeyDown(event) {
+        const currentKey = event.key.toUpperCase();
+        const isValidKey = this.state.drumData
+          .map(object => object.key)
+          .some(key => currentKey === key);
+
+        if (isValidKey) {
+          this.setCurrentDrum(currentKey);
+          this.play(currentKey);
+        }
+      }
+
+      play(id) {
+        const audio = document.getElementById(id);
+
+        audio.parentNode.classList.add('active');
+        setTimeout(_ => audio.parentNode.classList.remove('active'), 50);
+        
+        audio.volume = this.state.volume;
+        audio.pause();
+        audio.currentTime = 0;
+        audio.play();
+      }
+
+      componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+      }
+      
+      componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+      }
+      
+      handleDrumPadClick(id) {
+        this.setCurrentDrum(id);
+        this.play(id);
+      }
+      
+      handleSwitchClick(isActive) {
+        this.setState({
+          volume: isActive ? 1 : 0 
+        });
+      }
+
+      render() {
+        return (
+          <React.Fragment>
+            <RenderTop />
+            <div className="left">
+              <RenderDrumPads 
+                onDrumPadClick={this.handleDrumPadClick} 
+                drumData={this.state.drumData}
+                volume={this.state.volume} />
+            </div>
+            <div className="right">
+              <RenderSwitch 
+                label="Power"
+                initialIsActive={true}
+                onSwitchClick={this.handleSwitchClick} />
+              <div id="slider">{this.state.currentDrum.name}</div>
+              <div className="volume">
+                <input type="range" id="volume" min="0" max="1" step="0.01" />
+              </div>
+              <RenderSwitch 
+                label="Bank"
+                initialIsActive={false} />
+            </div>
+          </React.Fragment>
+        );
+      }
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('drum-machine'));
+    root.render(<DrumMachine />);
   </script>
 </body>
 </html>
