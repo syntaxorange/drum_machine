@@ -55,6 +55,25 @@
       }
     }
 
+    class RenderSlider extends React.Component {
+      constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
+      }
+
+      handleChange(e) {
+        this.props.onSliderChange(e.currentTarget.value);
+      }
+
+      render() {
+        return (
+          <input type="range" min="0" max="1" step="0.01" 
+            onChange={this.handleChange} 
+            value={this.props.value} />
+        );
+      }
+    }
+
     class RenderDrumPads extends React.Component {
       constructor(props) {
         super(props);
@@ -68,10 +87,10 @@
       render() {
         return (
           <React.Fragment>
-            {this.props.drumData.map((value, i) => (
+            {this.props.data.map((value, i) => (
               <button type="button" key={i} className="drum-pad" onClick={this.handleClick} data-id={value.key}>
                 <span>{value.key}</span>
-                <audio className="clip" id={value.key} src={value.url}></audio>
+                <audio className="clip" id={value.key} src={value[this.props.type].url}></audio>
               </button>
             ))}
           </React.Fragment>
@@ -79,43 +98,80 @@
       }
     }
 
+    const data = [
+      { key: 'Q',
+        drum: { name: 'Heater 1', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3' },
+        bank: { name: 'Chord 1', url: 'https://s3.amazonaws.com/freecodecamp/drums/Chord_1.mp3' }
+      }, 
+      { key: 'W', 
+        drum: { name: 'Heater 2', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3' },
+        bank: { name: 'Chord 2', url: 'https://s3.amazonaws.com/freecodecamp/drums/Chord_2.mp3' }
+      }, 
+      { key: 'E', 
+        drum: { name: 'Heater 3', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3' },
+        bank: { name: 'Chord 3', url: 'https://s3.amazonaws.com/freecodecamp/drums/Chord_3.mp3' }
+      }, 
+      { key: 'A', 
+        drum: { name: 'Heater 4', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3' },
+        bank: { name: 'Shaker', url: 'https://s3.amazonaws.com/freecodecamp/drums/Give_us_a_light.mp3' }
+      }, 
+      { key: 'S', 
+        drum: { name: 'Clap', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3' },
+        bank: { name: 'Open HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Dry_Ohh.mp3' }
+      }, 
+      { key: 'D', 
+        drum: { name: 'Open HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3' },
+        bank: { name: 'Closed HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Bld_H1.mp3' }
+      },
+      { key: 'Z', 
+        drum: { name: 'Kick n\' Hat', url: 'https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3' },
+        bank: { name: 'Punchy Kick', url: 'https://s3.amazonaws.com/freecodecamp/drums/punchy_kick_1.mp3' }
+      }, 
+      { key: 'X', 
+        drum: { name: 'Kick', url: 'https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3' },
+        bank: { name: 'Side Stick', url: 'https://s3.amazonaws.com/freecodecamp/drums/side_stick_1.mp3' }
+      }, 
+      { key: 'C',
+        drum: { name: 'Closed HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3' },
+        bank: { name: 'Snare', url: 'https://s3.amazonaws.com/freecodecamp/drums/Brk_Snr.mp3' }
+      }
+    ];
+
     class DrumMachine extends React.Component {
       constructor(props) {
         super(props);
         this.state = {
-          drumData: [
-            { key: 'Q', name: 'Heater 1', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3' }, 
-            { key: 'W', name: 'Heater 2', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3' }, 
-            { key: 'E', name: 'Heater 3', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3' }, 
-            { key: 'A', name: 'Heater 4', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3' }, 
-            { key: 'S', name: 'Clap', url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3' }, 
-            { key: 'D', name: 'Open HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3' },
-            { key: 'Z', name: 'Kick n\' Hat', url: 'https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3' }, 
-            { key: 'X', name: 'Kick', url: 'https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3' }, 
-            { key: 'C', name: 'Closed HH', url: 'https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3' }
-          ],
-          currentDrum: { name: '' },
-          volume: '0.2'
+          type: 'drum',
+          display: '',
+          sliderValue: '',
+          volume: '0.3'
         }
         this.handleDrumPadClick = this.handleDrumPadClick.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleSwitchClick = this.handleSwitchClick.bind(this);
+        this.handlePowerClick = this.handlePowerClick.bind(this);
+        this.handleBankClick = this.handleBankClick.bind(this);
+        this.handleSliderChange = this.handleSliderChange.bind(this);
       }
 
-      setCurrentDrum(currentKey) {
+      getDataObject(key) {
+        return data.find(object => object.key === key);
+      }
+
+      setDisplay(display) {
         this.setState({
-          currentDrum: {...this.state.drumData.find(object => object.key === currentKey)}
+          display
         });
       }
 
       handleKeyDown(event) {
         const currentKey = event.key.toUpperCase();
-        const isValidKey = this.state.drumData
+        const isValidKey = data
           .map(object => object.key)
           .some(key => currentKey === key);
 
         if (isValidKey) {
-          this.setCurrentDrum(currentKey);
+          const { name } = this.getDataObject(currentKey)[this.state.type];
+          this.setDisplay(name);
           this.play(currentKey);
         }
       }
@@ -141,13 +197,29 @@
       }
       
       handleDrumPadClick(id) {
-        this.setCurrentDrum(id);
+        const { name } = this.getDataObject(id)[this.state.type];
+        this.setDisplay(name);
         this.play(id);
       }
       
-      handleSwitchClick(isActive) {
+      handlePowerClick(isActive) {
         this.setState({
-          volume: isActive ? 1 : 0 
+          volume: isActive ? 1 : 0
+        });
+      }
+
+      handleBankClick(isActive) {
+        this.setState({
+          type: isActive ? 'bank' : 'drum'
+        });
+      }
+
+      handleSliderChange(volume) {
+        this.setDisplay(`Volume: ${parseInt(volume * 100)}`);
+        setTimeout(() => this.setDisplay(''), 1000);
+        this.setState({
+          volume,
+          sliderValue: volume
         });
       }
 
@@ -158,21 +230,23 @@
             <div className="left">
               <RenderDrumPads 
                 onDrumPadClick={this.handleDrumPadClick} 
-                drumData={this.state.drumData}
+                data={data}
+                type={this.state.type}
                 volume={this.state.volume} />
             </div>
             <div className="right">
               <RenderSwitch 
                 label="Power"
                 initialIsActive={true}
-                onSwitchClick={this.handleSwitchClick} />
-              <div id="slider">{this.state.currentDrum.name}</div>
-              <div className="volume">
-                <input type="range" id="volume" min="0" max="1" step="0.01" />
-              </div>
+                onSwitchClick={this.handlePowerClick} />
+              <div id="display">{this.state.display}</div>
+              <RenderSlider 
+                onSliderChange={this.handleSliderChange}
+                value={this.state.sliderValue} />
               <RenderSwitch 
                 label="Bank"
-                initialIsActive={false} />
+                initialIsActive={false}
+                onSwitchClick={this.handleBankClick}  />
             </div>
           </React.Fragment>
         );
